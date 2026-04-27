@@ -1,0 +1,110 @@
+{% extends "core/base.html" %}
+{% block title %}Attendance Report – Dojo Manager{% endblock %}
+{% block breadcrumb %}Operations{% endblock %}
+{% block page_title %}Attendance Report{% endblock %}
+
+{% block content %}
+<div class="card mb-3">
+  <div class="card-body">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label fw-semibold small">Class</label>
+        <select name="class_group" class="form-select">
+          <option value="">All classes</option>
+          {% for training_class in all_classes %}
+          <option value="{{ training_class.pk }}" {% if selected_class == training_class.pk|stringformat:"s" %}selected{% endif %}>
+            {{ training_class.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label fw-semibold small">Start Date</label>
+        <input type="date" name="start_date" value="{{ start_date }}" class="form-control">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label fw-semibold small">End Date</label>
+        <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-accent w-100">
+          <i class="bi bi-filter me-1"></i>Filter
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if summary %}
+<div class="row g-3 mb-3">
+  <div class="col-md-4">
+    <div class="stat-card" style="background:linear-gradient(135deg,#4facfe,#00f2fe);">
+      <div class="small opacity-75">Total Present</div>
+      <div class="fs-2 fw-bold">{{ total_present }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card" style="background:linear-gradient(135deg,#f093fb,#f5576c);">
+      <div class="small opacity-75">Total Absent</div>
+      <div class="fs-2 fw-bold">{{ total_absent }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card" style="background:linear-gradient(135deg,#667eea,#764ba2);">
+      <div class="small opacity-75">Attendance Rate</div>
+      <div class="fs-2 fw-bold">
+        {% if total_present or total_absent %}
+        {% widthratio total_present total_present|add:total_absent 100 %}%
+        {% else %}0%{% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header fw-bold">Summary by Student</div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Student</th>
+          <th>Class</th>
+          <th class="text-center">Present</th>
+          <th class="text-center">Absent</th>
+          <th class="text-center">Total</th>
+          <th class="text-center">% Attendance</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in summary %}
+        <tr>
+          <td class="fw-semibold">{{ r.student_name }}</td>
+          <td><span class="badge bg-light text-dark">{{ r.class_name }}</span></td>
+          <td class="text-center text-success fw-semibold">{{ r.present_count }}</td>
+          <td class="text-center text-danger">{{ r.absent_count }}</td>
+          <td class="text-center text-muted">{{ r.total }}</td>
+          <td class="text-center">
+            {% if r.total > 0 %}
+            {% widthratio r.present_count r.total 100 as pct %}
+            <div class="d-flex align-items-center gap-2">
+              <div class="progress flex-grow-1" style="height:6px;">
+                <div class="progress-bar {% if pct >= 75 %}bg-success{% elif pct >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
+                     style="width:{{ pct }}%"></div>
+              </div>
+              <span class="small fw-semibold">{{ pct }}%</span>
+            </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-clipboard-x fs-1 d-block mb-3 opacity-25"></i>
+  <p>No attendance found for the selected filters.</p>
+</div>
+{% endif %}
+{% endblock %}

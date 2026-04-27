@@ -1,0 +1,128 @@
+{% extends "core/base.html" %}
+{% block title %}Check-in – Dojo Manager{% endblock %}
+{% block breadcrumb %}Operations{% endblock %}
+{% block page_title %}Quick Check-in{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header fw-bold">
+        <i class="bi bi-person-check me-2 text-success"></i>Register Attendance
+      </div>
+      <div class="card-body">
+        <form method="post" id="checkin-form">
+          {% csrf_token %}
+          <input type="hidden" name="student_id" id="student_id_input">
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Search Student</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="bi bi-search text-muted"></i></span>
+              <input type="text" id="search-student" class="form-control"
+                     placeholder="Type the student name..." value="{{ q }}" autocomplete="off">
+            </div>
+
+            {% if student_results %}
+            <div class="list-group mt-2 shadow-sm" id="search-results">
+              {% for student in student_results %}
+              <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                      onclick="selectStudent({{ student.pk }}, '{{ student.name }}')">
+                <div>
+                  <div class="fw-semibold">{{ student.name }}</div>
+                  <div class="text-muted small">{{ student.phone }}</div>
+                </div>
+                <i class="bi bi-chevron-right text-muted"></i>
+              </button>
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            <div id="selected-student" class="mt-2 d-none">
+              <div class="alert alert-success py-2 d-flex justify-content-between align-items-center mb-0">
+                <span><i class="bi bi-person-check me-2"></i><strong id="selected-name"></strong></span>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearStudent()">
+                  <i class="bi bi-x"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold small">Class</label>
+            <select name="class_id" class="form-select" required>
+              <option value="">-- Select class --</option>
+              {% for training_class in classes %}
+              <option value="{{ training_class.pk }}">{{ training_class.name }} ({{ training_class.modality }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-accent w-100 py-2" id="btn-checkin" disabled>
+            <i class="bi bi-check-circle me-2"></i>Confirm Check-in
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header fw-bold">
+        <i class="bi bi-search me-2 text-primary"></i>Search Student
+      </div>
+      <div class="card-body">
+        <form method="get" class="mb-0">
+          <div class="input-group">
+            <input type="text" name="q" value="{{ q }}" class="form-control"
+                   placeholder="Student name...">
+            <button type="submit" class="btn btn-primary">Search</button>
+          </div>
+        </form>
+        <p class="text-muted small mt-2 mb-0">
+          Use the search to find the student and select for check-in.
+        </p>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header fw-bold">
+        <i class="bi bi-info-circle me-2"></i>Quick Access
+      </div>
+      <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+          {% for training_class in classes %}
+          <a href="{% url 'attendance:register' training_class.pk %}" class="list-group-item list-group-item-action border-0">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="fw-semibold small">{{ training_class.name }}</div>
+                <div class="text-muted" style="font-size:.75rem;">{{ training_class.modality }} · {{ training_class.total_students }} students</div>
+              </div>
+              <span class="badge bg-light text-dark">Full list</span>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function selectStudent(id, name) {
+  document.getElementById('student_id_input').value = id;
+  document.getElementById('selected-name').textContent = name;
+  document.getElementById('selected-student').classList.remove('d-none');
+  document.getElementById('search-results')?.classList.add('d-none');
+  document.getElementById('btn-checkin').disabled = false;
+}
+
+function clearStudent() {
+  document.getElementById('student_id_input').value = '';
+  document.getElementById('selected-student').classList.add('d-none');
+  document.getElementById('btn-checkin').disabled = true;
+}
+</script>
+{% endblock %}

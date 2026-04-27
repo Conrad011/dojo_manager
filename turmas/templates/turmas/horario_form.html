@@ -1,0 +1,35 @@
+{% extends "core/base.html" %}
+{% block title %}Add Schedule – Dojo Manager{% endblock %}
+{% block breadcrumb %}Classes{% endblock %}
+{% block page_title %}Add Schedule – {{ training_class.name }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:400px;">
+  <div class="card-header"><i class="bi bi-clock me-2"></i>New Schedule</div>
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label fw-semibold small">Day of Week</label>
+        {{ form.weekday }}
+      </div>
+      <div class="row g-3 mb-4">
+        <div class="col-6">
+          <label class="form-label fw-semibold small">Start</label>
+          {{ form.start_time }}
+        </div>
+        <div class="col-6">
+          <label class="form-label fw-semibold small">End</label>
+          {{ form.end_time }}
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-accent px-4">
+          <i class="bi bi-check-lg me-1"></i>Save
+        </button>
+        <a href="{% url 'classes:detail' training_class.pk %}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

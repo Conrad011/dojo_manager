@@ -1,0 +1,93 @@
+{% extends "core/base.html" %}
+{% block title %}Students – Dojo Manager{% endblock %}
+{% block breadcrumb %}Records{% endblock %}
+{% block page_title %}Students{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
+    <form class="d-flex gap-2 flex-wrap" method="get">
+      <div class="input-group" style="max-width:280px;">
+        <span class="input-group-text bg-light"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search by name, CPF or phone...">
+      </div>
+      <select name="status" class="form-select" style="width:auto;" onchange="this.form.submit()">
+        <option value="all" {% if status == 'all' %}selected{% endif %}>All</option>
+        <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+        <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+      </select>
+      <button type="submit" class="btn btn-accent"><i class="bi bi-search"></i></button>
+    </form>
+    <a href="{% url 'students:create' %}" class="btn btn-accent">
+      <i class="bi bi-plus-lg me-1"></i>New Student
+    </a>
+  </div>
+
+  <div class="card-body p-0">
+    {% if students %}
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Student</th>
+            <th>Phone</th>
+            <th>Enrolled</th>
+            <th>Classes</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in students %}
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                {% if student.photo %}
+                <img src="{{ student.photo.url }}" class="rounded-circle" style="width:36px;height:36px;object-fit:cover;">
+                {% else %}
+                <div class="avatar">{{ student.name|first|upper }}</div>
+                {% endif %}
+                <div>
+                  <div class="fw-semibold">{{ student.name }}</div>
+                  {% if student.email %}<div class="text-muted" style="font-size:.75rem;">{{ student.email }}</div>{% endif %}
+                </div>
+              </div>
+            </td>
+            <td>{{ student.phone }}</td>
+            <td class="text-muted small">{{ student.enrollment_date|date:"d/m/Y" }}</td>
+            <td>
+              <span class="badge bg-light text-dark">{{ student.active_classes_count }}</span>
+            </td>
+            <td>
+              {% if student.active %}
+              <span class="badge bg-success-subtle text-success">Active</span>
+              {% else %}
+              <span class="badge bg-danger-subtle text-danger">Inactive</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <a href="{% url 'students:detail' student.pk %}" class="btn btn-sm btn-light" title="View">
+                <i class="bi bi-eye"></i>
+              </a>
+              <a href="{% url 'students:update' student.pk %}" class="btn btn-sm btn-light" title="Edit">
+                <i class="bi bi-pencil"></i>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="px-3 py-2 border-top text-muted small">
+      {{ total }} student{{ total|pluralize }} found
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-people fs-1 d-block mb-3 opacity-25"></i>
+      <p>No students found.</p>
+      <a href="{% url 'students:create' %}" class="btn btn-accent">Register first student</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "core/base.html" %}
+{% block title %}Register Payment – Dojo Manager{% endblock %}
+{% block breadcrumb %}Financial{% endblock %}
+{% block page_title %}Register Payment{% endblock %}
+
+{% block content %}
+<div class="row g-3 justify-content-center">
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header fw-bold"><i class="bi bi-info-circle me-2 text-primary"></i>Fee Details</div>
+      <div class="card-body">
+        <table class="table table-sm table-borderless mb-0">
+          <tr>
+            <td class="text-muted fw-semibold small w-40">Student</td>
+            <td class="fw-bold">{{ fee.student.name }}</td>
+          </tr>
+          <tr>
+            <td class="text-muted fw-semibold small">Reference Month</td>
+            <td>{{ fee.reference_month|date:"F \d\e Y" }}</td>
+          </tr>
+          <tr>
+            <td class="text-muted fw-semibold small">Original Amount</td>
+            <td>R$ {{ fee.amount|floatformat:2 }}</td>
+          </tr>
+          {% if fee.discount %}
+          <tr>
+            <td class="text-muted fw-semibold small">Discount</td>
+            <td class="text-success">- R$ {{ fee.discount|floatformat:2 }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <td class="text-muted fw-semibold small">Final Amount</td>
+            <td class="fw-bold fs-5 text-success">R$ {{ fee.net_amount|floatformat:2 }}</td>
+          </tr>
+          <tr>
+            <td class="text-muted fw-semibold small">Due Date</td>
+            <td class="{% if fee.status == 'overdue' %}text-danger fw-bold{% endif %}">
+              {{ fee.due_date|date:"d/m/Y" }}
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header fw-bold"><i class="bi bi-cash-coin me-2 text-success"></i>Payment Data</div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.META.HTTP_REFERER }}">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Payment Date</label>
+            {{ form.payment_date }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Payment Method</label>
+            {{ form.payment_method }}
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Notes</label>
+            {{ form.notes }}
+          </div>
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-success btn-lg">
+              <i class="bi bi-check-circle me-2"></i>Confirm Payment
+            </button>
+            <a href="{% url 'financial:fees' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

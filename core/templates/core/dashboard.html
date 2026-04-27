@@ -1,0 +1,213 @@
+{% extends "core/base.html" %}
+{% block title %}Dashboard – Dojo Manager{% endblock %}
+{% block breadcrumb %}Início{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#667eea,#764ba2);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="opacity-75 small">Alunos Ativos</div>
+          <div class="fs-2 fw-bold">{{ total_students }}</div>
+        </div>
+        <i class="bi bi-people-fill fs-2 opacity-50"></i>
+      </div>
+      <a href="{% url 'students:list' %}" class="text-white-50 small text-decoration-none">Ver todos →</a>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#f093fb,#f5576c);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="opacity-75 small">Turmas Ativas</div>
+          <div class="fs-2 fw-bold">{{ total_classes }}</div>
+        </div>
+        <i class="bi bi-calendar-week fs-2 opacity-50"></i>
+      </div>
+      <a href="{% url 'classes:list' %}" class="text-white-50 small text-decoration-none">Ver turmas →</a>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#4facfe,#00f2fe);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="opacity-75 small">Presenças Hoje</div>
+          <div class="fs-2 fw-bold">{{ today_attendances }}</div>
+        </div>
+        <i class="bi bi-person-check-fill fs-2 opacity-50"></i>
+      </div>
+      <a href="{% url 'attendance:checkin' %}" class="text-white-50 small text-decoration-none">Check-in →</a>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#fa709a,#fee140);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="opacity-75 small">Inadimplentes</div>
+          <div class="fs-2 fw-bold">{{ total_overdue }}</div>
+        </div>
+        <i class="bi bi-exclamation-triangle-fill fs-2 opacity-50"></i>
+      </div>
+      <a href="{% url 'financial:fees' %}?status=overdue" class="text-white-50 small text-decoration-none">Ver detalhes →</a>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-calendar-day text-primary me-2"></i>Aulas de Hoje</span>
+        <span class="badge bg-primary rounded-pill">{{ today_schedules|length }}</span>
+      </div>
+      <div class="card-body p-0">
+        {% if today_schedules %}
+        <div class="list-group list-group-flush">
+          {% for schedule in today_schedules %}
+          <div class="list-group-item border-0 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="fw-semibold">{{ schedule.class_group.name }}</div>
+                <div class="small text-muted">
+                  <i class="bi bi-clock me-1"></i>{{ schedule.start_time|time:"H:i" }} – {{ schedule.end_time|time:"H:i" }}
+                  {% if schedule.class_group.instructor %}
+                  <span class="ms-2"><i class="bi bi-person me-1"></i>{{ schedule.class_group.instructor.name }}</span>
+                  {% endif %}
+                </div>
+                <div class="small">
+                  <span class="badge bg-light text-dark">{{ schedule.class_group.modality }}</span>
+                  <span class="text-muted ms-1">{{ schedule.class_group.total_students }} alunos</span>
+                </div>
+              </div>
+              <a href="{% url 'attendance:register' schedule.class_group.pk %}" class="btn btn-sm btn-accent">
+                <i class="bi bi-clipboard-check"></i>
+              </a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="p-4 text-center text-muted">
+          <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>Nenhuma aula hoje
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="row g-3">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-activity text-success me-2"></i>Check-ins de Hoje</span>
+            <a href="{% url 'attendance:checkin' %}" class="btn btn-sm btn-accent">
+              <i class="bi bi-plus-lg me-1"></i>Check-in
+            </a>
+          </div>
+          <div class="card-body p-0">
+            {% if recent_attendances %}
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead><tr><th>Aluno</th><th>Turma</th><th>Hora</th></tr></thead>
+                <tbody>
+                  {% for attendance in recent_attendances %}
+                  <tr>
+                    <td>
+                      <a href="{% url 'students:detail' attendance.student.pk %}" class="text-decoration-none fw-semibold">
+                        {{ attendance.student.name }}
+                      </a>
+                    </td>
+                    <td><span class="badge bg-light text-dark">{{ attendance.class_group.name }}</span></td>
+                    <td class="text-muted small">{{ attendance.registered_at|time:"H:i" }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <div class="p-3 text-center text-muted small">Nenhum check-in hoje ainda</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {% if overdue_fees %}
+      <div class="col-12">
+        <div class="card border-danger border-opacity-25">
+          <div class="card-header d-flex justify-content-between align-items-center bg-danger bg-opacity-10">
+            <span class="text-danger fw-semibold">
+              <i class="bi bi-exclamation-circle me-2"></i>Inadimplentes ({{ total_overdue }})
+            </span>
+            <a href="{% url 'financial:fees' %}?status=overdue" class="btn btn-sm btn-outline-danger">Ver todos</a>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead><tr><th>Aluno</th><th>Mês</th><th>Vencimento</th><th>Valor</th><th></th></tr></thead>
+                <tbody>
+                  {% for fee in overdue_fees %}
+                  <tr>
+                    <td><a href="{% url 'students:detail' fee.student.pk %}" class="text-decoration-none fw-semibold">{{ fee.student.name }}</a></td>
+                    <td class="small">{{ fee.reference_month|date:"m/Y" }}</td>
+                    <td class="text-danger small">{{ fee.due_date|date:"d/m" }}</td>
+                    <td class="fw-semibold">R$ {{ fee.net_amount }}</td>
+                    <td>
+                      <a href="{% url 'financial:pay' fee.pk %}" class="btn btn-sm btn-success">
+                        <i class="bi bi-cash"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if birthdays %}
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <i class="bi bi-balloon-heart text-danger me-2"></i>Aniversariantes do Mês
+          </div>
+          <ul class="list-group list-group-flush">
+            {% for student in birthdays %}
+            <li class="list-group-item d-flex justify-content-between align-items-center border-0">
+              <a href="{% url 'students:detail' student.pk %}" class="text-decoration-none fw-semibold">{{ student.name }}</a>
+              <span class="text-muted small">{{ student.birth_date|date:"d/m" }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if upcoming_fees %}
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <i class="bi bi-clock-history text-warning me-2"></i>Vencem em 7 dias
+          </div>
+          <ul class="list-group list-group-flush">
+            {% for fee in upcoming_fees %}
+            <li class="list-group-item d-flex justify-content-between align-items-center border-0">
+              <div>
+                <div class="fw-semibold small">{{ fee.student.name }}</div>
+                <div class="text-muted" style="font-size:.7rem;">Vence {{ fee.due_date|date:"d/m" }}</div>
+              </div>
+              <span class="fw-semibold small">R$ {{ fee.net_amount }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

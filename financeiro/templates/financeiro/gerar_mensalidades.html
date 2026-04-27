@@ -1,0 +1,42 @@
+{% extends "core/base.html" %}
+{% block title %}Generate Fees – Dojo Manager{% endblock %}
+{% block breadcrumb %}Financial{% endblock %}
+{% block page_title %}Generate Fees in Bulk{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header fw-bold">
+        <i class="bi bi-lightning me-2 text-warning"></i>Generate Monthly Fees
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info small">
+          <i class="bi bi-info-circle me-2"></i>
+          This action automatically generates fees for all students with an
+          <strong>active financial enrollment</strong>. Existing fees will not be duplicated.
+        </div>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Reference Month</label>
+            {{ form.reference_month }}
+            <div class="form-text">Select the 1st day of the reference month.</div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Due Day</label>
+            {{ form.due_day }}
+            <div class="form-text">Day of the month when fees are due.</div>
+          </div>
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-success btn-lg">
+              <i class="bi bi-lightning me-2"></i>Generate Fees
+            </button>
+            <a href="{% url 'financial:fees' %}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

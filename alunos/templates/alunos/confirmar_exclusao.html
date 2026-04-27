@@ -1,0 +1,23 @@
+{% extends "core/base.html" %}
+{% block title %}Deactivate Student – Dojo Manager{% endblock %}
+{% block breadcrumb %}Students{% endblock %}
+{% block page_title %}Deactivate Student{% endblock %}
+
+{% block content %}
+<div class="card border-danger" style="max-width:480px;">
+  <div class="card-header bg-danger bg-opacity-10 text-danger fw-bold">
+    <i class="bi bi-exclamation-triangle me-2"></i>Confirm Deactivation
+  </div>
+  <div class="card-body">
+    <p>Do you want to deactivate student <strong>{{ student.name }}</strong>?</p>
+    <p class="text-muted small">The student will be marked as inactive and will not appear in default lists. All data will be kept.</p>
+    <form method="post" class="d-flex gap-2 mt-3">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">
+        <i class="bi bi-person-x me-1"></i>Confirm Deactivation
+      </button>
+      <a href="{% url 'students:detail' student.pk %}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

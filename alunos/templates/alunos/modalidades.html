@@ -1,0 +1,53 @@
+{% extends "core/base.html" %}
+{% block title %}Modalities – Dojo Manager{% endblock %}
+{% block breadcrumb %}Records{% endblock %}
+{% block page_title %}Modalities and Belts{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end mb-3">
+  <a href="{% url 'students:modality_create' %}" class="btn btn-accent">
+    <i class="bi bi-plus-lg me-1"></i>New Modality
+  </a>
+</div>
+
+{% if modalities %}
+<div class="row g-3">
+  {% for modality in modalities %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-bold">{{ modality.name }}</span>
+        <div class="d-flex gap-1">
+          {% if modality.active %}<span class="badge bg-success-subtle text-success">Active</span>{% endif %}
+          <a href="{% url 'students:belt_create' modality.pk %}" class="btn btn-sm btn-outline-primary ms-1" title="Add belt">
+            <i class="bi bi-plus-lg"></i>
+          </a>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        {% if modality.belts.all %}
+        <ul class="list-group list-group-flush">
+          {% for belt in modality.belts.all %}
+          <li class="list-group-item border-0 py-2 d-flex align-items-center gap-2">
+            <span style="display:inline-block;width:20px;height:20px;border-radius:4px;border:1px solid #ddd;background:{% if belt.color_hex_2 %}linear-gradient(90deg,{{ belt.color_hex }} 50%,{{ belt.color_hex_2 }} 50%){% else %}{{ belt.color_hex }}{% endif %};"></span>
+            <span class="small">{{ belt.name }}</span>
+            <span class="text-muted ms-auto" style="font-size:.7rem;">#{{ belt.order }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="p-3 text-muted small mb-0">No belts registered.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-trophy fs-1 d-block mb-3 opacity-25"></i>
+  <p>No modalities registered.</p>
+  <a href="{% url 'students:modality_create' %}" class="btn btn-accent">Create first modality</a>
+</div>
+{% endif %}
+{% endblock %}

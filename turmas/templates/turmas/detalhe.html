@@ -1,0 +1,109 @@
+{% extends "core/base.html" %}
+{% block title %}{{ training_class.name }} – Dojo Manager{% endblock %}
+{% block breadcrumb %}Classes{% endblock %}
+{% block page_title %}{{ training_class.name }}{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h6 class="fw-bold">{{ training_class.name }}</h6>
+        <div class="small text-muted mb-3">
+          <span class="badge bg-primary-subtle text-primary">{{ training_class.modality }}</span>
+          {% if training_class.active %}
+          <span class="badge bg-success-subtle text-success ms-1">Active</span>
+          {% endif %}
+        </div>
+        {% if training_class.instructor %}
+        <div class="mb-2 small"><i class="bi bi-person-badge me-2 text-muted"></i>{{ training_class.instructor.name }}</div>
+        {% endif %}
+        <div class="mb-2 small"><i class="bi bi-people me-2 text-muted"></i>{{ training_class.total_students }} / {{ training_class.max_capacity }} students</div>
+        {% if training_class.description %}
+        <p class="small text-muted mt-2">{{ training_class.description }}</p>
+        {% endif %}
+        <div class="d-grid gap-2 mt-3">
+          <a href="{% url 'attendance:register' training_class.pk %}" class="btn btn-accent">
+            <i class="bi bi-clipboard-check me-1"></i>Register Attendance
+          </a>
+          <a href="{% url 'classes:update' training_class.pk %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-pencil me-1"></i>Edit Class
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-clock me-2"></i>Schedules</span>
+        <a href="{% url 'classes:schedule_add' training_class.pk %}" class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-plus-lg"></i>
+        </a>
+      </div>
+      <div class="card-body p-0">
+        {% if schedules %}
+        <ul class="list-group list-group-flush">
+          {% for schedule in schedules %}
+          <li class="list-group-item border-0 d-flex justify-content-between align-items-center">
+            <div>
+              <div class="fw-semibold small">{{ schedule.get_weekday_display }}</div>
+              <div class="text-muted" style="font-size:.75rem;">{{ schedule.start_time|time:"H:i" }} – {{ schedule.end_time|time:"H:i" }}</div>
+            </div>
+            <a href="{% url 'classes:schedule_remove' schedule.pk %}" class="btn btn-sm btn-outline-danger"
+               onclick="return confirm('Remove this schedule?')">
+              <i class="bi bi-trash"></i>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="p-3 text-muted small mb-0">No schedules defined.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-people me-2"></i>Enrolled Students ({{ enrollments|length }})</span>
+        <a href="{% url 'classes:enrollment_add' training_class.pk %}" class="btn btn-sm btn-accent">
+          <i class="bi bi-person-plus me-1"></i>Enroll
+        </a>
+      </div>
+      <div class="card-body p-0">
+        {% if enrollments %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr><th>Student</th><th>Phone</th><th>Enrolled</th><th></th></tr>
+            </thead>
+            <tbody>
+              {% for enrollment in enrollments %}
+              <tr>
+                <td>
+                  <a href="{% url 'students:detail' enrollment.student.pk %}" class="text-decoration-none fw-semibold">
+                    {{ enrollment.student.name }}
+                  </a>
+                </td>
+                <td class="small">{{ enrollment.student.phone }}</td>
+                <td class="small text-muted">{{ enrollment.enrollment_date|date:"d/m/Y" }}</td>
+                <td class="text-end">
+                  <a href="{% url 'classes:enrollment_remove' enrollment.pk %}" class="btn btn-sm btn-outline-danger"
+                     onclick="return confirm('Remove {{ enrollment.student.name }} from this class?')">
+                    <i class="bi bi-person-dash"></i>
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="p-3 text-muted small mb-0">No students enrolled.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

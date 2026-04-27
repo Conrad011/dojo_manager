@@ -1,0 +1,174 @@
+{% extends "core/base.html" %}
+{% block title %}{{ student.name }} – Dojo Manager{% endblock %}
+{% block breadcrumb %}Students / Details{% endblock %}
+{% block page_title %}{{ student.name }}{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card text-center p-4">
+      {% if student.photo %}
+      <img src="{{ student.photo.url }}" class="rounded-circle mx-auto mb-3" style="width:100px;height:100px;object-fit:cover;">
+      {% else %}
+      <div class="avatar mx-auto mb-3" style="width:80px;height:80px;font-size:2rem;">
+        {{ student.name|first|upper }}
+      </div>
+      {% endif %}
+      <h5 class="fw-bold mb-1">{{ student.name }}</h5>
+      <p class="text-muted small mb-3">
+        {{ student.age }} years old
+        {% if student.is_minor %}<span class="badge bg-warning text-dark">Minor</span>{% endif %}
+      </p>
+      {% if student.active %}
+      <span class="badge bg-success fs-6 px-3">Active</span>
+      {% else %}
+      <span class="badge bg-danger fs-6 px-3">Inactive</span>
+      {% endif %}
+
+      <hr>
+      <div class="text-start small">
+        <div class="mb-2"><i class="bi bi-telephone me-2 text-muted"></i>{{ student.phone }}</div>
+        {% if student.email %}<div class="mb-2"><i class="bi bi-envelope me-2 text-muted"></i>{{ student.email }}</div>{% endif %}
+        {% if student.cpf %}<div class="mb-2"><i class="bi bi-credit-card me-2 text-muted"></i>{{ student.cpf }}</div>{% endif %}
+        {% if student.address %}<div class="mb-2"><i class="bi bi-geo-alt me-2 text-muted"></i>{{ student.address }}</div>{% endif %}
+        <div class="mb-2"><i class="bi bi-calendar me-2 text-muted"></i>Enrolled: {{ student.enrollment_date|date:"d/m/Y" }}</div>
+      </div>
+
+      {% if student.is_minor and student.guardian_name %}
+      <hr>
+      <div class="text-start small">
+        <div class="fw-semibold mb-1 text-muted">Guardian</div>
+        <div>{{ student.guardian_name }}</div>
+        {% if student.guardian_phone %}<div><i class="bi bi-telephone me-1"></i>{{ student.guardian_phone }}</div>{% endif %}
+      </div>
+      {% endif %}
+
+      <hr>
+      <div class="d-grid gap-2">
+        <a href="{% url 'students:update' student.pk %}" class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-pencil me-1"></i>Edit
+        </a>
+        <a href="{% url 'students:graduation' student.pk %}" class="btn btn-sm btn-outline-warning">
+          <i class="bi bi-award me-1"></i>Register Graduation
+        </a>
+        <a href="{% url 'financial:enrollment_create' %}?student={{ student.pk }}" class="btn btn-sm btn-outline-success">
+          <i class="bi bi-receipt me-1"></i>Financial Enrollment
+        </a>
+        <a href="{% url 'attendance:student_history' student.pk %}" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-clipboard-data me-1"></i>Attendance History
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-calendar3 me-2"></i>Enrolled Classes</span>
+      </div>
+      <div class="card-body p-0">
+        {% if class_enrollments %}
+        <div class="list-group list-group-flush">
+          {% for enrollment in class_enrollments %}
+          <div class="list-group-item border-0">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="fw-semibold">{{ enrollment.class_group.name }}</div>
+                <div class="small text-muted">
+                  <span class="badge bg-light text-dark me-1">{{ enrollment.class_group.modality }}</span>
+                  {{ enrollment.class_group.schedules_display }}
+                </div>
+              </div>
+              <span class="badge bg-success-subtle text-success">Active</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="p-3 text-muted small mb-0">Not enrolled in any class.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-header">
+        <i class="bi bi-award me-2"></i>Graduations
+      </div>
+      <div class="card-body p-0">
+        {% if graduations %}
+        <div class="list-group list-group-flush">
+          {% for g in graduations %}
+          <div class="list-group-item border-0 py-2">
+            <div class="d-flex align-items-center gap-3">
+              <div class="badge-belt" style="background:{{ g.belt.color_hex }};color:{% if g.belt.color_hex == '#FFFFFF' or g.belt.color_hex == '#FFFF00' %}#333{% else %}#fff{% endif %};">
+                {{ g.belt.name }}
+              </div>
+              <div>
+                <div class="fw-semibold small">{{ g.modality }}</div>
+                <div class="text-muted" style="font-size:.75rem;">{{ g.graduation_date|date:"d/m/Y" }}</div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="p-3 text-muted small mb-0">No graduations recorded.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-receipt me-2"></i>Monthly Fees</span>
+        <a href="{% url 'financial:fee_create' %}" class="btn btn-sm btn-outline-success">
+          <i class="bi bi-plus-lg"></i>
+        </a>
+      </div>
+      <div class="card-body p-0">
+        {% if fees %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr><th>Month</th><th>Amount</th><th>Due Date</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+              {% for fee in fees %}
+              <tr>
+                <td class="fw-semibold small">{{ fee.reference_month|date:"m/Y" }}</td>
+                <td>R$ {{ fee.net_amount }}</td>
+                <td class="small">{{ fee.due_date|date:"d/m/Y" }}</td>
+                <td>
+                  {% if fee.status == 'paid' %}
+                  <span class="badge bg-success-subtle text-success">Paid</span>
+                  {% elif fee.status == 'overdue' %}
+                  <span class="badge bg-danger-subtle text-danger">Overdue</span>
+                  {% elif fee.status == 'pending' %}
+                  <span class="badge bg-warning-subtle text-warning">Pending</span>
+                  {% else %}
+                  <span class="badge bg-secondary-subtle text-secondary">{{ fee.get_status_display }}</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if fee.status != 'paid' %}
+                  <a href="{% url 'financial:pay' fee.pk %}" class="btn btn-sm btn-success" title="Register payment">
+                    <i class="bi bi-cash"></i>
+                  </a>
+                  {% else %}
+                  <a href="{% url 'financial:receipt' fee.pk %}" class="btn btn-sm btn-light" title="Receipt">
+                    <i class="bi bi-printer"></i>
+                  </a>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="p-3 text-muted small mb-0">No fees found.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

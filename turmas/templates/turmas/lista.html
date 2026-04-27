@@ -1,0 +1,75 @@
+{% extends "core/base.html" %}
+{% block title %}Classes – Dojo Manager{% endblock %}
+{% block breadcrumb %}Records{% endblock %}
+{% block page_title %}Classes{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end mb-3">
+  <a href="{% url 'classes:create' %}" class="btn btn-accent">
+    <i class="bi bi-plus-lg me-1"></i>New Class
+  </a>
+</div>
+
+{% if classes %}
+<div class="row g-3">
+  {% for training_class in classes %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <h6 class="fw-bold mb-1">{{ training_class.name }}</h6>
+            <span class="badge bg-primary-subtle text-primary">{{ training_class.modality }}</span>
+          </div>
+          {% if training_class.active %}
+          <span class="badge bg-success-subtle text-success">Active</span>
+          {% else %}
+          <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+          {% endif %}
+        </div>
+
+        {% if training_class.instructor %}
+        <div class="small text-muted mb-2">
+          <i class="bi bi-person me-1"></i>{{ training_class.instructor.name }}
+        </div>
+        {% endif %}
+
+        {% if training_class.schedules.all %}
+        <div class="small mb-2">
+          {% for schedule in training_class.schedules.all %}
+          <span class="badge bg-light text-dark me-1">
+            {{ schedule.get_weekday_display|slice:":3" }} {{ schedule.start_time|time:"H:i" }}
+          </span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <div class="small text-muted">
+            <i class="bi bi-people me-1"></i>{{ training_class.total_students }}/{{ training_class.max_capacity }} students
+          </div>
+          <div class="d-flex gap-1">
+            <a href="{% url 'attendance:register' training_class.pk %}" class="btn btn-sm btn-accent" title="Register attendance">
+              <i class="bi bi-clipboard-check"></i>
+            </a>
+            <a href="{% url 'classes:detail' training_class.pk %}" class="btn btn-sm btn-light" title="Details">
+              <i class="bi bi-eye"></i>
+            </a>
+            <a href="{% url 'classes:update' training_class.pk %}" class="btn btn-sm btn-light" title="Edit">
+              <i class="bi bi-pencil"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-calendar-x fs-1 d-block mb-3 opacity-25"></i>
+  <p>No classes registered.</p>
+  <a href="{% url 'classes:create' %}" class="btn btn-accent">Create first class</a>
+</div>
+{% endif %}
+{% endblock %}

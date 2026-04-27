@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(python -c \"import PIL; print\\('Pillow OK:', PIL.__version__\\)\" 2>&1)",
+      "Bash(python manage.py makemigrations)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\gui\\.claude\\projects\\c--Dev-dojo-manager\\memory",
+      "C:\\Dev\\dojo_manager\\alunos\\migrations"
+    ]
+  }
+}

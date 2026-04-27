@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Dojo Manager{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --sidebar-bg: #1a1a2e;
+      --sidebar-accent: #e94560;
+      --sidebar-hover: #16213e;
+      --sidebar-width: 250px;
+    }
+    body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+    #sidebar {
+      width: var(--sidebar-width);
+      min-height: 100vh;
+      background: var(--sidebar-bg);
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 100;
+      transition: all .3s;
+      display: flex;
+      flex-direction: column;
+    }
+    #sidebar .sidebar-brand { padding: 1.5rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,.08); }
+    #sidebar .sidebar-brand h5 { color: #fff; margin: 0; font-weight: 700; letter-spacing: 1px; }
+    #sidebar .sidebar-brand small { color: var(--sidebar-accent); font-size: .7rem; text-transform: uppercase; letter-spacing: 2px; }
+    #sidebar .nav-link {
+      color: rgba(255,255,255,.7);
+      padding: .6rem 1.25rem;
+      border-radius: 6px;
+      margin: 2px 8px;
+      font-size: .875rem;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+    #sidebar .nav-link:hover, #sidebar .nav-link.active { background: var(--sidebar-hover); color: #fff; }
+    #sidebar .nav-link.active { border-left: 3px solid var(--sidebar-accent); }
+    #sidebar .nav-section { color: rgba(255,255,255,.35); font-size: .65rem; text-transform: uppercase; letter-spacing: 2px; padding: 1rem 1.25rem .3rem; font-weight: 600; }
+    #sidebar .nav-link i { font-size: 1rem; width: 20px; text-align: center; }
+    #main { margin-left: var(--sidebar-width); min-height: 100vh; display: flex; flex-direction: column; }
+    #topbar { background: #fff; border-bottom: 1px solid #e5e7eb; padding: .75rem 1.5rem; position: sticky; top: 0; z-index: 99; }
+    .page-content { padding: 1.5rem; flex: 1; }
+    .card { border: none; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .card-header { background: transparent; border-bottom: 1px solid rgba(0,0,0,.05); font-weight: 600; padding: 1rem 1.25rem; }
+    .stat-card { border-radius: 12px; padding: 1.25rem; color: #fff; border: none; }
+    .btn-accent { background: var(--sidebar-accent); color: #fff; border: none; }
+    .btn-accent:hover { background: #c73652; color: #fff; }
+    .badge-belt { display: inline-block; padding: .2em .6em; border-radius: 4px; font-size: .75rem; font-weight: 600; }
+    .table th { font-size: .8rem; text-transform: uppercase; letter-spacing: .5px; color: #6b7280; font-weight: 600; border-top: none; }
+    .table td { vertical-align: middle; }
+    .sidebar-footer { margin-top: auto; padding: 1rem; border-top: 1px solid rgba(255,255,255,.08); }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: var(--sidebar-accent); display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: .9rem; }
+    @media (max-width: 768px) {
+      #sidebar { transform: translateX(-100%); }
+      #sidebar.show { transform: translateX(0); }
+      #main { margin-left: 0; }
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<div id="sidebar">
+  <div class="sidebar-brand">
+    <div class="d-flex align-items-center gap-2">
+      <div style="background:var(--sidebar-accent);width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+        <i class="bi bi-fire text-white fs-5"></i>
+      </div>
+      <div>
+        <h5>DojoManager</h5>
+        <small>Sistema de Gestão</small>
+      </div>
+    </div>
+  </div>
+
+  <nav class="pt-2 flex-grow-1">
+    <span class="nav-section">Principal</span>
+    <a href="{% url 'core:dashboard' %}" class="nav-link {% if request.resolver_match.app_name == 'core' %}active{% endif %}">
+      <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+    <a href="{% url 'attendance:checkin' %}" class="nav-link {% if request.resolver_match.url_name == 'checkin' %}active{% endif %}">
+      <i class="bi bi-person-check"></i> Check-in
+    </a>
+
+    <span class="nav-section">Cadastros</span>
+    <a href="{% url 'students:list' %}" class="nav-link {% if request.resolver_match.app_name == 'students' and request.resolver_match.url_name != 'modalities' and request.resolver_match.url_name != 'modality_create' and request.resolver_match.url_name != 'belt_create' %}active{% endif %}">
+      <i class="bi bi-people"></i> Alunos
+    </a>
+    <a href="{% url 'classes:list' %}" class="nav-link {% if request.resolver_match.app_name == 'classes' and request.resolver_match.url_name != 'instructors' and request.resolver_match.url_name != 'instructor_create' and request.resolver_match.url_name != 'instructor_update' %}active{% endif %}">
+      <i class="bi bi-calendar3"></i> Turmas
+    </a>
+    <a href="{% url 'classes:instructors' %}" class="nav-link {% if request.resolver_match.url_name == 'instructors' or request.resolver_match.url_name == 'instructor_create' or request.resolver_match.url_name == 'instructor_update' %}active{% endif %}">
+      <i class="bi bi-person-badge"></i> Instrutores
+    </a>
+    <a href="{% url 'students:modalities' %}" class="nav-link {% if request.resolver_match.url_name == 'modalities' or request.resolver_match.url_name == 'modality_create' or request.resolver_match.url_name == 'belt_create' %}active{% endif %}">
+      <i class="bi bi-trophy"></i> Modalidades
+    </a>
+
+    <span class="nav-section">Operações</span>
+    <a href="{% url 'attendance:report' %}" class="nav-link {% if request.resolver_match.app_name == 'attendance' and request.resolver_match.url_name != 'checkin' %}active{% endif %}">
+      <i class="bi bi-clipboard-check"></i> Presenças
+    </a>
+    <a href="{% url 'financial:dashboard' %}" class="nav-link {% if request.resolver_match.app_name == 'financial' and request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <i class="bi bi-cash-coin"></i> Financeiro
+    </a>
+    <a href="{% url 'financial:fees' %}" class="nav-link {% if request.resolver_match.url_name == 'fees' or request.resolver_match.url_name == 'fee_create' or request.resolver_match.url_name == 'fee_update' or request.resolver_match.url_name == 'pay' or request.resolver_match.url_name == 'receipt' or request.resolver_match.url_name == 'generate_fees' or request.resolver_match.url_name == 'enrollment_create' %}active{% endif %}">
+      <i class="bi bi-receipt"></i> Mensalidades
+    </a>
+    <a href="{% url 'financial:plans' %}" class="nav-link {% if request.resolver_match.url_name == 'plans' or request.resolver_match.url_name == 'plan_create' or request.resolver_match.url_name == 'plan_update' %}active{% endif %}">
+      <i class="bi bi-card-list"></i> Planos
+    </a>
+
+    {% if user.is_staff %}
+    <span class="nav-section">Admin</span>
+    <a href="{% url 'admin:index' %}" class="nav-link" target="_blank">
+      <i class="bi bi-gear"></i> Admin Django
+    </a>
+    {% endif %}
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="d-flex align-items-center gap-2">
+      <div class="avatar">{{ user.username|first|upper }}</div>
+      <div class="flex-grow-1 overflow-hidden">
+        <div class="text-white small fw-semibold text-truncate">{{ user.get_full_name|default:user.username }}</div>
+        <div style="color:rgba(255,255,255,.5);font-size:.7rem;">Recepção</div>
+      </div>
+      <form method="post" action="{% url 'logout' %}" class="d-inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-link p-0 text-white opacity-50" title="Sair">
+          <i class="bi bi-box-arrow-right fs-5"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="main">
+  <div id="topbar" class="d-flex align-items-center gap-3">
+    <button class="btn btn-sm btn-light d-md-none" id="sidebarToggle">
+      <i class="bi bi-list fs-5"></i>
+    </button>
+    <div>
+      <span class="text-muted small">{% block breadcrumb %}{% endblock %}</span>
+      <h6 class="mb-0 fw-bold">{% block page_title %}{% endblock %}</h6>
+    </div>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <span class="text-muted small d-none d-sm-inline">
+        <i class="bi bi-calendar3"></i>
+        <span id="current-date"></span>
+      </span>
+    </div>
+  </div>
+
+  <div class="page-content">
+    {% if messages %}
+    <div class="mb-3">
+      {% for msg in messages %}
+      <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">
+        {% if msg.tags == 'success' %}<i class="bi bi-check-circle-fill me-2"></i>{% endif %}
+        {% if msg.tags == 'error' or msg.tags == 'danger' %}<i class="bi bi-x-circle-fill me-2"></i>{% endif %}
+        {% if msg.tags == 'warning' %}<i class="bi bi-exclamation-triangle-fill me-2"></i>{% endif %}
+        {{ msg }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </div>
+</div>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.getElementById('sidebarToggle')?.addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('show');
+  });
+  const el = document.getElementById('current-date');
+  if (el) el.textContent = new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
