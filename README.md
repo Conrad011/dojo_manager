@@ -25,11 +25,13 @@ Acesso: http://127.0.0.1:8000 — login: `admin` / `admin123`
 
 ## Deploy (Railway)
 
+Acesso: dojomanager-production.up.railway.app
+
 Variáveis de ambiente necessárias:
 
 | Variável | Valor |
 |---|---|
-| `SECRET_KEY` | chave secreta Django |
+| `SECRET_KEY` |
 | `DEBUG` | `False` |
 | `ALLOWED_HOSTS` | domínio gerado pelo Railway |
 | `DATABASE_URL` | preenchido automaticamente pelo PostgreSQL do Railway |
@@ -37,10 +39,6 @@ Variáveis de ambiente necessárias:
 | `DJANGO_SUPERUSER_PASSWORD` | `admin123` |
 | `DJANGO_SUPERUSER_EMAIL` | seu email |
 
-**Start Command:**
-```
-python manage.py collectstatic --noinput && python manage.py migrate && python manage.py seed && python manage.py populate && gunicorn django_basico.wsgi --bind 0.0.0.0:$PORT --log-file -
-```
 
 ## Funcionalidades
 
