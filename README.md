@@ -34,7 +34,7 @@ Variáveis de ambiente necessárias:
 | `ALLOWED_HOSTS` | domínio gerado pelo Railway |
 | `DATABASE_URL` | preenchido automaticamente pelo PostgreSQL do Railway |
 | `DJANGO_SUPERUSER_USERNAME` | `admin` |
-| `DJANGO_SUPERUSER_PASSWORD` | sua senha |
+| `DJANGO_SUPERUSER_PASSWORD` | `admin123` |
 | `DJANGO_SUPERUSER_EMAIL` | seu email |
 
 **Start Command:**
