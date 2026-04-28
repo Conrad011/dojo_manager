@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from datetime import date, timedelta
 
@@ -6,6 +7,14 @@ from alunos.models import Student
 from turmas.models import ClassGroup, ClassSchedule
 from presencas.models import Attendance
 from financeiro.models import MonthlyFee
+from core.management.commands.populate import Command as PopulateCommand
+
+
+def demo_logout(request):
+    logout(request)
+    Student.objects.all().delete()
+    PopulateCommand().handle()
+    return redirect('login')
 
 
 @login_required
