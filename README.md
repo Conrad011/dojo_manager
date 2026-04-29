@@ -23,7 +23,7 @@ python manage.py runserver
 
 ## Deploy (Railway)
 
-Acesso: dojomanager-production.up.railway.app
+Acesso: https://dojomanager-production.up.railway.app
 
 login: `admin` / `admin123`
 
