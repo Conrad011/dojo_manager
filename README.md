@@ -21,11 +21,10 @@ python manage.py seed
 python manage.py runserver
 ```
 
-Acesso: http://127.0.0.1:8000 — login: `admin` / `admin123`
-
 ## Deploy (Railway)
 
 Acesso: dojomanager-production.up.railway.app
+login: `admin` / `admin123`
 
 Variáveis de ambiente necessárias:
 
